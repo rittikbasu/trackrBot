@@ -5,6 +5,8 @@ A Telegram chatbot that helps you set price alerts for amazon products. The bot 
 
 [Link to the Telegram Bot](https://telegram.me/PriceA1ertBot)
 
+![skdms](https://github.com/rittikbasu/pricealert-telegrambot/blob/941963a2147f73482bb31c149b59684198f5032b/images/Screenshot%20from%202021-10-17%2020-01-55.png)
+
 
 ### Requirements
 * pyTelegramBotAPI
