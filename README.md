@@ -30,7 +30,7 @@ A Telegram chatbot that helps you set price alerts for amazon products. The bot 
 * It checks whether it is a valid Amazon product URL.
 * Then it asks you for a price alert.
 * Finally using the Google Sheets API it adds the details of your product to an excel sheet.
-* It checks every hour if the product has reached the alert price.
+* The amazon scraper checks every hour if the product has reached the alert price.
 * Once it reaches the alert price the bot sends you an alert message.
 
 ### Links to Replit
