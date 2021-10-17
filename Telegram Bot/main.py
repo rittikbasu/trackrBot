@@ -1,5 +1,4 @@
 import os
-import time
 from replit import db
 from telebot import telebot, types
 from keepalive import keep_alive
@@ -17,6 +16,7 @@ def check_inline(cid):
             db[cid][1].clear()
 
 def get_message_data(echo,cid):
+    str_cid = str(cid)
     inline_data = [echo.chat.id,echo.message_id]
     db[str_cid][1].append(inline_data)
 
@@ -42,7 +42,6 @@ def list_products(message):
 
 @bot.message_handler(func=lambda message: True)
 def echo_msg(message):
-    global cid, str_cid
     cid = message.chat.id
     str_cid = str(cid)
     db[str_cid] = [[],[]]
@@ -65,6 +64,8 @@ def echo_msg(message):
 
 
 def yes_no(message):
+    cid = message.chat.id
+    str_cid = str(cid)
     check_inline(str_cid)
     keyboard = types.InlineKeyboardMarkup()
     yes_btn = types.InlineKeyboardButton(text='Yes', callback_data='yes')
@@ -74,9 +75,11 @@ def yes_no(message):
     echo = bot.reply_to(message, inline_msg, reply_markup=keyboard, disable_web_page_preview=True)
     get_message_data(echo,str_cid)
     bot.register_next_step_handler(message=echo, callback=yes_no)
-    
+
 
 def extract_msg(message):
+    cid = message.chat.id
+    str_cid = str(cid)
     check_inline(str_cid)
     if is_number(message.text):
         db[str_cid][0].insert(1,message.text)
@@ -95,6 +98,8 @@ def extract_msg(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(query):
+    cid = query.message.chat.id
+    str_cid = str(cid)
     if query.data == 'yes':
         send_data(db[str_cid][0])
         bot.answer_callback_query(query.id,'Product added successfully to watchlist')
