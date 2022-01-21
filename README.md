@@ -6,7 +6,7 @@ A Telegram chatbot that helps you set price alerts for amazon products. The bot 
 [Telegram link for TrackrBot](https://telegram.me/PriceA1ertBot)
 
 ### Demo
-![Demo](https://ik.imagekit.io/zwcfsadeijm/ezgif.com-gif-maker_gxN7p7Lob.webp?ik-sdk-version=javascript-1.4.3&updatedAt=1642797718105)
+![Demo](https://ik.imagekit.io/zwcfsadeijm/ezgif.com-gif-maker__1__NlR250szt.webp?ik-sdk-version=javascript-1.4.3&updatedAt=1642803781317)
 
 ### Price Chart
 <img src="https://ik.imagekit.io/zwcfsadeijm/pricechart_NqWajh4Mm.png?ik-sdk-version=javascript-1.4.3&updatedAt=1642799747998" alt="Price Chart" width="800">
