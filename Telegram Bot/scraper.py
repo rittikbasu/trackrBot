@@ -6,11 +6,14 @@ import os
 import shortuuid
 from func_timeout import func_set_timeout
 
+from util import scraper_cc
+
 def get_html(url):
     api_key = os.environ.get('scraperapi_key')
+    cc = scraper_cc(url)
     @func_set_timeout(20)
     def runfastordie():
-        page = requests.get('http://api.scraperapi.com?api_key='+api_key+'&url='+url)
+        page = requests.get(f'http://api.scraperapi.com?api_key={api_key}&url={url}country_code={cc}')
         soup = BeautifulSoup(page.content,'lxml')
         print(page)
         if str(page) == '<Response [403]>':
@@ -42,12 +45,13 @@ def process_price(price_raw):
     if '-' in price_raw:
         price_raw = price_raw.split('-')[0]
     price_formatted = re.sub("[^0123456789\.,]","",price_raw)
-
-    if price_formatted[-3] == ',':
-        price = price_formatted.replace('.','').replace(',', '.')
-
-    else:
-        price = price_formatted.replace(',', '').strip()
+    try:
+        if price_formatted[-3] == ',':
+            price = price_formatted.replace('.','').replace(',', '.')
+        else:
+            price = price_formatted.replace(',', '').strip()
+    except IndexError:
+        return price_formatted
     return price
 
 def metadata(soup,url):
