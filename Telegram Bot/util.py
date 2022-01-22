@@ -25,3 +25,14 @@ def is_number(s):
         return False
 
     return True
+
+def scraper_cc(url):
+    cc_list = ['us','uk','ca','de','fr','es','br','mx','in','jp','cn','au']
+    cc = url[19:].split('/')[0]
+    if len(cc) == 3:
+        cc = 'us'
+    else:
+        cc = cc[-2:]
+        if cc not in cc_list:
+            cc = 'us'
+    return cc
