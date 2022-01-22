@@ -1,123 +1,146 @@
 import os
 from replit import db
-from telebot import telebot, types
-from keepalive import keep_alive
-from sheets import send_data, list_my_products
-from util import is_number
+from telebot import telebot
 from scraper import scrape
+from keepalive import keep_alive
+from util import watchlisted, is_number
 
 key = os.environ.get('telegram_key')
 bot = telebot.TeleBot(key, parse_mode='HTML')
 
-def check_inline(cid):
-    if len(db[cid][1]) != 0:
-        for btns in db[cid][1]:
-            bot.edit_message_reply_markup(btns[0], btns[1])
-            db[cid][1].clear()
-
-def get_message_data(echo,cid):
-    str_cid = str(cid)
-    inline_data = [echo.chat.id,echo.message_id]
-    db[str_cid][1].append(inline_data)
 
 @bot.message_handler(commands=['start'])
 def start(message):
     cid = message.chat.id
-    name = message.chat.first_name
-    text = "Hello %s I’m <b>TARS the Price Alert Bot</b> &#129302;.\n\nHave you ever waited for the price of an Amazon product to drop and then miss it because you forgot to check it on this random day?\n\nDon’t worry cause I got your back now &#128074;. Just paste an Amazon product url in the chat and tell me the price at which I should send you an alert. I’ll be checking the site every hour so now you can rest assured that you’ll never miss when your favourite product goes on sale."%(name)
+    username = message.chat.first_name
+    text = f"Hello {username} I’m <b>TrackrBot</b> &#129302;.\n\n<u><b>What I can do for you?</b></u>\n\n<b>&#8226; Send you Price Alerts</b>\nGet price alerts for your Amazon products. Just paste the product link in the chat to get started.\n\n<b>&#8226; Send you Price Charts</b>\nGet a graph of your product price every 30 days."
     bot.send_message(cid, text)
 
 @bot.message_handler(commands=['help'])
 def help(message):
-    text = "<b>Let’s talk about what I can do for you</b>\n\n1. Paste any Amazon product url in the chat and then I’ll ask you for the price alert at which you want me to notify you. After successful completion of the steps, your product will be added to the watchlist.\n\n<b>Note:</b> While sharing the url for any wearable product make sure to select your size before you send the link to me, this way you’ll only get the price alert for your size of the product.\n\n2. /watchlist: Use this command to get a list of all your products that are on the watchlist."
-    bot.reply_to(message, text)
+    cid = message.chat.id
+    text1 = "<u><b>Note</b></u>\n\n&#8226; To add a price alert for your Amazon product simply paste the product link in the chat.\n\n&#8226; You can add a maximum of 3 products to your watchlist.\n\n&#8226; Once you have reached the maximum limit on your watchlist you'll have to delete a product to add any more products.\n\n&#8226; If you like this project you can support it on <a href='https://www.buymeacoffee.com/rittik'>BuyMeACoffee.</a>"
+    text2 = "<b>List of commands</b>\n\n<b>&#8226; /watchlist</b>\nTo see the products you have watchlisted\n\n<b>&#8226; /delete</b>\nTo delete products from your watchlist"
+
+    bot.send_message(cid, text1, disable_web_page_preview=True)
+    bot.send_message(cid, text2, disable_web_page_preview=True)
+
 
 @bot.message_handler(commands=['watchlist'])
-def list_products(message):
-    bot.send_chat_action(message.chat.id, 'typing')
-    cid = str(message.chat.id)
-    name = message.chat.first_name
-    product_list = list_my_products(cid,name)
-    bot.reply_to(message, product_list, disable_web_page_preview=True)
+def watchlist(message):
+    cid = message.chat.id
+    key = str(cid)
+    username = message.chat.first_name
+
+    text1 = watchlisted(key,username)
+    text2 = 'To delete a product from the watchlist use the /delete command.\n<b>Usage:</b> <code>/delete productNumber</code>\n<b>Example:</b> <code>/delete 2</code>'
+    
+    bot.send_message(cid, text1, disable_web_page_preview=True)
+    bot.send_message(cid, text2, disable_web_page_preview=True)
+
+
+@bot.message_handler(commands=['delete'])
+def delete(message):
+    cid = message.chat.id
+    index = message.text.replace("/delete ", "") 
+
+    if index == '/delete':
+        text = '<b>Error:</b> productNumber is empty.\n<b>Usage:</b> <code>/delete productNumber</code>\n<i>(Check your /watchlist for productNumber)</i>'
+    else:
+        key = str(cid)
+        db_len = len(db[key])
+        username = message.chat.first_name
+
+        if is_number(index):
+            if int(index) <= db_len:
+                index = int(index) - 1
+                del db[key][index]
+                text = watchlisted(key,username)
+            else:
+                text = '<b>Error:</b> productNumber out of range.'
+
+        else:
+            text = '<b>Error:</b> Please enter a valid number.'
+
+    bot.send_message(cid, text, disable_web_page_preview=True)
+
+restricted = os.environ.get('restrictedaccess')
+@bot.message_handler(commands=[restricted])
+def restrict(message):
+    cid = message.chat.id
+    key = str(cid)
+    if key not in db['restricted']:
+        db['restricted'].append(key)
+        text = "You've been given restricted access."
+        bot.send_message(cid, text)
 
 @bot.message_handler(func=lambda message: True)
-def echo_msg(message):
+def main(message):
     cid = message.chat.id
-    str_cid = str(cid)
-    db[str_cid] = [[],[]]
-    check_inline(str_cid)
-    bot.send_chat_action(message.chat.id, 'typing')
-    if 'https://www.amazon.' in message.text:
-        u1 = message.text.partition("https://www.amazon.")[1]
-        u2 = message.text.partition("https://www.amazon.")[2]
-        url = u1 + u2
-        scraped = scrape(url)
-        if len(scraped) != 0:
-            db[str_cid][0].append(scraped[0])
-            db[str_cid][0].append(url)
-            echo = bot.reply_to(message,'Set a Price Alert for your product\n<b>Example:</b> 1400')
-            bot.register_next_step_handler(message=echo, callback=extract_msg)
+    key = str(cid)
+    timestamp_current = message.date
+    timestamp_previous = db.get(key+'ts')
+    
+    if ((timestamp_previous == None) or (timestamp_current - timestamp_previous > 5)):
+        db[key+'ts'] = timestamp_current
+
+        if key in db.keys():
+            if len(db[key]) >= 3:
+                if key not in db['restricted']:
+                    bot.send_message(cid, '<b>Error:</b> Your /watchlist is full!\nDelete a product from the watchlist to add a new product')
+                    return 0
+
+        if 'https://www.amazon.' in message.text:
+            bot.send_message(cid,'Fetching data...')
+            u1 = message.text.partition("https://www.amazon.")[1]
+            u2 = message.text.partition("https://www.amazon.")[2]
+            url = u1 + u2
+
+            scraped = scrape(url) #scraping function
+
+            if type(scraped) == tuple:
+                data = {'title':scraped[1],'asin':scraped[2],'category':scraped[3],'uid':scraped[4],'url':url}
+                
+                if key in db.keys():
+                    db[key].append(data)
+                else:
+                    db[key] = [data]
+                bot.reply_to(message,f'<b>Product Name: </b><i>{scraped[1]}</i>\n\n<b>Price: </b><i>{scraped[0]}</i>')
+                echo = bot.reply_to(message,'Set a Price Alert for your product or Enter <b>0</b> to cancel the request\n<b>Example:</b> <i>140.99</i>')
+                bot.register_next_step_handler(message=echo, callback=get_alertprice)
+
+            elif scraped == 'exhausted': #api calls exhausted
+                username = message.chat.first_name
+                bot.reply_to(message, f"<b>Error: </b><code>API calls exhausted</code>\n\nHey {username} due to high number of users using <b>TrackrBot</b> an API which is used to provide this service has been exhausted for the month.\nTo support this project and ensure it keeps running smoothly consider making a donation at https://www.buymeacoffee.com/rittik.")
+
+            else:
+                bot.reply_to(message,'<b>Error:</b> Could not fetch the data. Please try again.')
         else:
-            bot.reply_to(message,'There is something wrong with the link, TARS could not extract the data. Please try again.')
-    else:
-        bot.reply_to(message,'Hey %s paste a valid Amazon product link in the chat to get started or press /help :)'%(message.chat.first_name))
+            bot.reply_to(message,'Hey %s paste a valid Amazon product link in the chat to get started or press /help :)'%(message.chat.first_name))
 
 
-def yes_no(message):
+def get_alertprice(message):
     cid = message.chat.id
-    str_cid = str(cid)
-    check_inline(str_cid)
-    keyboard = types.InlineKeyboardMarkup()
-    yes_btn = types.InlineKeyboardButton(text='Yes', callback_data='yes')
-    no_btn = types.InlineKeyboardButton(text='No', callback_data='no')
-    keyboard.add(yes_btn,no_btn)
-    inline_msg = '<b>Product Name: </b><a href="%s">%s</a>\n\n<b>Price Alert: </b>%s \n\nPress <b>Yes</b> to continue or <b>No</b> to discard and start again'%(db[str_cid][0][2],db[str_cid][0][0],db[str_cid][0][1])
-    echo = bot.reply_to(message, inline_msg, reply_markup=keyboard, disable_web_page_preview=True)
-    get_message_data(echo,str_cid)
-    bot.register_next_step_handler(message=echo, callback=yes_no)
+    key = str(cid)
+    index = len(db[key]) - 1
 
-
-def extract_msg(message):
-    cid = message.chat.id
-    str_cid = str(cid)
-    check_inline(str_cid)
     if is_number(message.text):
-        db[str_cid][0].insert(1,message.text)
-        db[str_cid][0].append(cid)
-        yes_no(message)
+        if int(message.text) == 0:
+            del db[key][index]
+            bot.send_message(cid,"Request cancelled.")
+        else:
+            db[key][index]['alert'] = message.text
+            bot.send_message(cid,"<b>Successfully added to /watchlist &#129309;</b>\nYou'll recieve a notfication when your product reaches the target price.")
 
-    if not is_number(message.text):
-        keyboard = types.InlineKeyboardMarkup()
-        cancel_btn = types.InlineKeyboardButton(text='Сancel', callback_data='cancel')
-        keyboard.add(cancel_btn)
-        inline_msg = 'Please enter a numeric value for the price alert (without the currency symbol) or press <b>Cancel</b> to exit.'
-        echo = bot.reply_to(message, inline_msg, reply_markup=keyboard)
-        get_message_data(echo,cid)
-        bot.register_next_step_handler(message=echo, callback=extract_msg)
+    else:
+        inline_msg = 'Please enter a numeric value for the price alert (without the currency symbol) or Enter <b>0</b> to cancel the request'
+        echo = bot.reply_to(message, inline_msg)
+        bot.register_next_step_handler(message=echo, callback=get_alertprice)
 
 
-@bot.callback_query_handler(func=lambda call: True)
-def callback(query):
-    cid = query.message.chat.id
-    str_cid = str(cid)
-    if query.data == 'yes':
-        send_data(db[str_cid][0])
-        bot.answer_callback_query(query.id,'Product added successfully to watchlist')
-        bot.clear_step_handler_by_chat_id(cid)
-        bot.edit_message_reply_markup(cid, query.message.message_id)
-        bot.send_message(cid, "Product added successfully to the watchlist! &#127882; &#127882; &#127882;\nYou'll recieve a notfication when your product reaches the target price.")
-        db[str_cid][1].clear()
 
-    if query.data == 'no':
-        bot.answer_callback_query(query.id,'Request Cancelled')
-        bot.clear_step_handler_by_chat_id(cid)
-        bot.edit_message_reply_markup(cid, query.message.message_id)
-        db[str_cid][1].clear()
-    if query.data == 'cancel':
-        bot.answer_callback_query(query.id,'Request Cancelled')
-        bot.clear_step_handler_by_chat_id(cid)
-        bot.edit_message_reply_markup(cid, query.message.message_id)
-        db[str_cid][1].clear()
+
+
 
 
 while True:
