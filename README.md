@@ -9,9 +9,10 @@ A Telegram chatbot that helps you set price alerts for amazon products. The bot 
 ![Demo](https://ik.imagekit.io/zwcfsadeijm/ezgif.com-gif-maker__1__NlR250szt.webp?ik-sdk-version=javascript-1.4.3&updatedAt=1642803781317)
 
 ### Price Chart
-<img src="https://ik.imagekit.io/zwcfsadeijm/newplot__2__INf1gWU4nVp.png?ik-sdk-version=javascript-1.4.3&updatedAt=1642878776534" alt="Price Chart" width="800">
-<!-- ![Demo](https://ik.imagekit.io/zwcfsadeijm/pricechart_NqWajh4Mm.png?ik-sdk-version=javascript-1.4.3&updatedAt=1642799747998) -->
+![Demo](https://github.com/rittikbasu/trackrBot/blob/d07adcb48965b287a1528bcf971e3728d26fd3da/images/newplot%20(2).png)
 
+<!-- <img src="https://ik.imagekit.io/zwcfsadeijm/newplot__2__INf1gWU4nVp.png?ik-sdk-version=javascript-1.4.3&updatedAt=1642878776534" alt="Price Chart" width="1000">
+ -->
 ### APIs Used:
 * <b>Telegram Bot API</b>
 
