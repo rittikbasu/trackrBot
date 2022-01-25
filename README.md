@@ -30,19 +30,11 @@ A Telegram chatbot that helps you set price alerts for amazon products. The bot 
 
   This API is used to record price changes for a product in Google Sheets which is used to create a product price chart every 30 days.
 
-    ```
-    $ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
-    ```
   [Refer this page on how to get the api key for Google Sheets](https://developers.google.com/sheets/api/guides/authorizing)
   
 * <b>pyTelegramBotAPI</b>
 
   A simple, but extensible Python implementation for the Telegram Bot API.
-
-
-    ```
-    $ pip install pyTelegramBotAPI
-    ```
 
 ### How it works?
 #### Telegram Bot
