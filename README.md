@@ -56,9 +56,9 @@ A Telegram chatbot that helps you set price alerts for amazon products. The bot 
 * <b>GitHub</b>
   * Fork this repository on GitHub and clone it on your local machine.
 
-  ```
-  $ git clone https://github.com/<your-username>/trackrBot.git
-  ```
+    ```
+    $ git clone https://github.com/<your-username>/trackrBot.git
+    ```
   * Create your Feature Branch (git checkout -b feature/AmazingFeature)
   * Commit your Changes (git commit -m 'Add some AmazingFeature')
   * Push to the Branch (git push origin feature/AmazingFeature)
