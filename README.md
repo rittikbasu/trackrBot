@@ -53,12 +53,18 @@ A Telegram chatbot that helps you set price alerts for amazon products. The bot 
     
 ### How to contribute?
 <i>Contributions, issues and feature requests are welcome. For major changes, please open an issue first to discuss what you would like to change.</i>
-* Fork this repository on GitHub and clone it on your local machine.
+* <b>GitHub</b>
+  * Fork this repository on GitHub and clone it on your local machine.
 
   ```
   $ git clone https://github.com/<your-username>/trackrBot.git
   ```
-* <b>Recommended:</b> Fork this project on Replit. This saves you the trouble of setting up the environment and installing the libraries.
+  * Create your Feature Branch (git checkout -b feature/AmazingFeature)
+  * Commit your Changes (git commit -m 'Add some AmazingFeature')
+  * Push to the Branch (git push origin feature/AmazingFeature)
+  * Open a Pull Request
+* <b>Recommended: Replit</b> 
+  * Fork this project on Replit. This saves you the trouble of setting up the environment and installing the libraries.
 
 #### Links to Replit
 * [Telegram Bot](https://replit.com/@RittikBasu/trackr)
